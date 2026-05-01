@@ -1,4 +1,8 @@
+import { createElement } from 'react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { EXAMPLE_SONGS } from '../constants';
+import PreviewPage from '../components/PreviewPage';
 import { buildMappingId, parseNotation, tokensToRows } from './notation';
 
 describe('parseNotation', () => {
@@ -41,5 +45,57 @@ describe('parseNotation', () => {
 describe('buildMappingId', () => {
   it('builds a deterministic mapping id', () => {
     expect(buildMappingId('high', '7')).toBe('high:7');
+  });
+});
+
+describe('EXAMPLE_SONGS', () => {
+  it('contains the requested example songs', () => {
+    expect(EXAMPLE_SONGS.map((song) => song.id)).toEqual(
+      expect.arrayContaining(['butterfly', 'jingle-bells', 'river-water'])
+    );
+  });
+
+  it('uses unique ids', () => {
+    const ids = EXAMPLE_SONGS.map((song) => song.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('contains parseable notation', () => {
+    EXAMPLE_SONGS.forEach((song) => {
+      expect(parseNotation(song.notation).errors, song.id).toHaveLength(0);
+    });
+  });
+
+  it('keeps the two tigers final phrase on low sol', () => {
+    const twoTigers = EXAMPLE_SONGS.find((song) => song.id === 'two-tigers');
+
+    expect(twoTigers?.notation.split('\n').slice(-2)).toEqual([
+      '1 _5 1 1 _5 1',
+      '1 _5 1 1 _5 1',
+    ]);
+  });
+});
+
+describe('PreviewPage', () => {
+  it('leaves rests blank in the rendered score', () => {
+    const parsed = parseNotation('1 0 2');
+
+    render(
+      createElement(PreviewPage, {
+        tokens: parsed.tokens,
+        mappings: {},
+        examples: [],
+        activeExampleId: null,
+        showPitchLabels: true,
+        onSelectExample: () => undefined,
+        onTogglePitchLabels: () => undefined,
+      })
+    );
+
+    expect(screen.getByLabelText('Default symbol for 1')).toBeInTheDocument();
+    expect(screen.getByLabelText('Default symbol for 2')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Default symbol for 0')).not.toBeInTheDocument();
+    expect(screen.queryByText('0')).not.toBeInTheDocument();
   });
 });
