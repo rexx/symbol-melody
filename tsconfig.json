@@ -17,6 +17,6 @@
     "jsx": "react-jsx"
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["utils/**/*.test.ts", "vitest.config.ts", "vitest.setup.ts"],
+  "exclude": ["utils/**/*.test.ts", "vitest.config.ts", "vitest.setup.ts", "worktrees/**"],
   "references": []
 }
