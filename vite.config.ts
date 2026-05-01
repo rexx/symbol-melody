@@ -4,4 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  base: '/symbol-melody/',
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
 });
